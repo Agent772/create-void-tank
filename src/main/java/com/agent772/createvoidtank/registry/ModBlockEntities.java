@@ -1,5 +1,6 @@
 package com.agent772.createvoidtank.registry;
 
+import com.agent772.createvoidtank.content.VoidFluidHandler;
 import com.agent772.createvoidtank.content.voidtank.VoidTankBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
@@ -7,7 +8,6 @@ import com.agent772.createvoidtank.CreateVoidTank;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class ModBlockEntities {
 
@@ -23,7 +23,7 @@ public class ModBlockEntities {
         event.registerBlockEntity(
                 Capabilities.FluidHandler.BLOCK,
                 VOID_TANK.get(),
-                (be, context) -> new FluidTank(0)
+                (be, context) -> VoidFluidHandler.INSTANCE
         );
     }
 }
