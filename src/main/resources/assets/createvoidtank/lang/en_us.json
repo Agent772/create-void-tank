@@ -1,3 +1,4 @@
 {
-  "block.createvoidtank.void_tank": "Void Tank"
+  "block.createvoidtank.void_tank": "Void Tank",
+  "itemGroup.createvoidtank": "Create Void Tank"
 }
