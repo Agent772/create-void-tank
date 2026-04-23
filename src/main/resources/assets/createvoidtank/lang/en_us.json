@@ -1,5 +1,10 @@
 {
   "block.createvoidtank.void_tank": "Void Tank",
   "itemGroup.createvoidtank": "Create Void Tank",
-  "createvoidtank.goggle.voiding": "Voiding All Fluids"
+  "block.createvoidtank.void_tank.tooltip": "Voids any fluid pumped into it",
+  "block.createvoidtank.void_tank.tooltip.behaviour1": "Accepts fluid from _any side_",
+  "block.createvoidtank.void_tank.tooltip.behaviour2": "Immediately _destroys_ all fluid",
+  "block.createvoidtank.void_tank.tooltip.behaviour3": "Can form _multi-blocks_ up to 3x3",
+  "createvoidtank.goggle.voiding": "Voiding All Fluids",
+  "createvoidtank.goggle.inactive": "Inactive"
 }
