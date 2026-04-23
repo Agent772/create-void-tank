@@ -1,11 +1,17 @@
 package com.agent772.createvoidtank.content;
 
+import java.util.function.Supplier;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class VoidFluidHandler implements IFluidHandler {
 
-    public static final VoidFluidHandler INSTANCE = new VoidFluidHandler();
+    private final Supplier<Boolean> activeSupplier;
+
+    public VoidFluidHandler(Supplier<Boolean> activeSupplier) {
+        this.activeSupplier = activeSupplier;
+    }
 
     @Override
     public int getTanks() {
@@ -29,6 +35,9 @@ public class VoidFluidHandler implements IFluidHandler {
 
     @Override
     public int fill(FluidStack resource, FluidAction action) {
+        if (!activeSupplier.get()) {
+            return 0;
+        }
         return resource.getAmount();
     }
 

@@ -1,6 +1,5 @@
 package com.agent772.createvoidtank.registry;
 
-import com.agent772.createvoidtank.content.VoidFluidHandler;
 import com.agent772.createvoidtank.content.VoidTankRenderer;
 import com.agent772.createvoidtank.content.voidtank.VoidTankBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
@@ -29,7 +28,7 @@ public class ModBlockEntities {
                     VoidTankBlockEntity controller = be.getControllerBE();
                     if (controller == null)
                         return null;
-                    return VoidFluidHandler.INSTANCE;
+                    return controller.getFluidHandler();
                 }
         );
     }
