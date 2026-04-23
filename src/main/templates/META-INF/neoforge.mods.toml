@@ -1,0 +1,44 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+# A URL to refer people to when problems occur with this mod
+issueTrackerURL="https://gitea.matejhoz.com/Agent772/create-void-tank/issues" #optional
+
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+displayURL="https://gitea.matejhoz.com/Agent772/create-void-tank"
+logoFile="voidtank_logo.png"
+credits="Creators of Create, NeoForge, and all other awesome tools that made this possible." #optional
+authors="${mod_authors}" #optional
+
+# The description text for the mod (multi line!) (#mandatory)
+description='''${mod_description}'''
+
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+
+[[dependencies.${mod_id}]] #optional
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="required"
+    versionRange="${create_version_range}"
+    ordering="AFTER"
+    side="BOTH"
