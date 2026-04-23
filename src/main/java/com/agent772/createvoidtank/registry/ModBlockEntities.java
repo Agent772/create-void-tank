@@ -1,6 +1,7 @@
 package com.agent772.createvoidtank.registry;
 
 import com.agent772.createvoidtank.content.VoidFluidHandler;
+import com.agent772.createvoidtank.content.VoidTankRenderer;
 import com.agent772.createvoidtank.content.voidtank.VoidTankBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
@@ -14,6 +15,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<VoidTankBlockEntity> VOID_TANK = CreateVoidTank.REGISTRATE
             .blockEntity("void_tank", VoidTankBlockEntity::new)
             .validBlocks(ModBlocks.VOID_TANK)
+            .renderer(() -> VoidTankRenderer::new)
             .register();
 
     public static void init() {
