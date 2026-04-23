@@ -1,4 +1,5 @@
 {
   "block.createvoidtank.void_tank": "Void Tank",
-  "itemGroup.createvoidtank": "Create Void Tank"
+  "itemGroup.createvoidtank": "Create Void Tank",
+  "createvoidtank.goggle.voiding": "Voiding All Fluids"
 }
