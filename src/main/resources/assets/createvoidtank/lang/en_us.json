@@ -12,5 +12,12 @@
   "configuration.createvoidtank.server.activationMode": "Activation Mode",
   "configuration.createvoidtank.server.activationMode.tooltip": "Condition that must be met for the Void Tank to void fluid",
   "configuration.createvoidtank.server.minimumHeatLevel": "Minimum Heat Level",
-  "configuration.createvoidtank.server.minimumHeatLevel.tooltip": "Minimum heat level required when using REQUIRES_HEAT mode"
+  "configuration.createvoidtank.server.minimumHeatLevel.tooltip": "Minimum heat level required when using REQUIRES_HEAT mode",
+  "createvoidtank.tooltip.activation.always_active": "No activation requirement",
+  "createvoidtank.tooltip.activation.requires_heat": "Requires heat source below",
+  "createvoidtank.tooltip.activation.requires_redstone": "Requires redstone signal",
+  "createvoidtank.tooltip.activation.heat_level": "Minimum heat level: %s",
+  "createvoidtank.tooltip.activation.heat.smouldering": "Smouldering",
+  "createvoidtank.tooltip.activation.heat.kindled": "Kindled",
+  "createvoidtank.tooltip.activation.heat.seething": "Seething"
 }
