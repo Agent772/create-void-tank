@@ -4,11 +4,15 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.agent772.createvoidtank.config.ModConfig;
+import com.agent772.createvoidtank.config.ModConfig.ActivationMode;
+import com.agent772.createvoidtank.config.ModConfig.MinimumHeatLevel;
 import com.agent772.createvoidtank.content.VoidFluidHandler;
 import com.agent772.createvoidtank.content.VoidTankBlock;
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -22,6 +26,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,6 +41,7 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     private static final int MAX_SIZE = 3;
     private static final int MAX_HEIGHT = 16;
     private static final int CAPACITY_MULTIPLIER = 64000;
+    private static final int ACTIVATION_CHECK_INTERVAL = 20;
 
     protected BlockPos controller;
     protected BlockPos lastKnownPos;
@@ -44,10 +51,16 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     protected int height;
 
     protected SmartFluidTank tankInventory;
+    protected VoidFluidHandler fluidHandler;
+    protected boolean cachedActive;
+    protected int activationCheckCooldown;
 
     public VoidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         tankInventory = new SmartFluidTank(CAPACITY_MULTIPLIER, f -> {});
+        fluidHandler = new VoidFluidHandler(() -> cachedActive);
+        cachedActive = true;
+        activationCheckCooldown = 0;
         updateConnectivity = false;
         window = true;
         width = 1;
@@ -66,6 +79,90 @@ public class VoidTankBlockEntity extends SmartBlockEntity
             invalidateRenderBoundingBox();
     }
 
+    // --- Activation ---
+
+    public VoidFluidHandler getFluidHandler() {
+        return fluidHandler;
+    }
+
+    public boolean isActive() {
+        return cachedActive;
+    }
+
+    private boolean evaluateActivation() {
+        if (level == null)
+            return true;
+
+        ActivationMode mode = ModConfig.ACTIVATION_MODE.get();
+        return switch (mode) {
+            case ALWAYS_ACTIVE -> true;
+            case REQUIRES_HEAT -> checkHeat();
+            case REQUIRES_REDSTONE -> checkRedstone();
+        };
+    }
+
+    private boolean checkHeat() {
+        MinimumHeatLevel required = ModConfig.MINIMUM_HEAT_LEVEL.get();
+        int requiredOrdinal = required.ordinal();
+
+        BlockPos controllerPos = getController();
+        int bottomY = controllerPos.getY() - 1;
+
+        for (int xOffset = 0; xOffset < width; xOffset++) {
+            for (int zOffset = 0; zOffset < width; zOffset++) {
+                BlockPos belowPos = new BlockPos(
+                        controllerPos.getX() + xOffset,
+                        bottomY,
+                        controllerPos.getZ() + zOffset
+                );
+                int detectedLevel = detectHeatLevel(belowPos);
+                if (detectedLevel >= requiredOrdinal)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private int detectHeatLevel(BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if (block instanceof BlazeBurnerBlock) {
+            BlazeBurnerBlock.HeatLevel heat = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
+            return switch (heat) {
+                case SMOULDERING -> MinimumHeatLevel.SMOULDERING.ordinal();
+                case KINDLED -> MinimumHeatLevel.KINDLED.ordinal();
+                case SEETHING -> MinimumHeatLevel.SEETHING.ordinal();
+                default -> -1;
+            };
+        }
+
+        if (block == Blocks.FIRE || block == Blocks.SOUL_FIRE
+                || block == Blocks.LAVA || block == Blocks.MAGMA_BLOCK) {
+            return MinimumHeatLevel.SMOULDERING.ordinal();
+        }
+
+        if (block instanceof CampfireBlock && state.getValue(CampfireBlock.LIT)) {
+            return MinimumHeatLevel.SMOULDERING.ordinal();
+        }
+
+        return -1;
+    }
+
+    private boolean checkRedstone() {
+        BlockPos controllerPos = getController();
+        for (int xOffset = 0; xOffset < width; xOffset++) {
+            for (int yOffset = 0; yOffset < height; yOffset++) {
+                for (int zOffset = 0; zOffset < width; zOffset++) {
+                    BlockPos pos = controllerPos.offset(xOffset, yOffset, zOffset);
+                    if (level.hasNeighborSignal(pos))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // --- Tick / Update ---
 
     @Override
@@ -81,6 +178,15 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
         if (updateConnectivity)
             updateConnectivity();
+
+        if (isController() && !level.isClientSide) {
+            if (activationCheckCooldown <= 0) {
+                cachedActive = evaluateActivation();
+                activationCheckCooldown = ACTIVATION_CHECK_INTERVAL;
+            } else {
+                activationCheckCooldown--;
+            }
+        }
     }
 
     public void updateConnectivity() {
@@ -312,9 +418,26 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        tooltip.add(Component.literal(" ")
-                .append(Component.translatable("createvoidtank.goggle.voiding")
-                        .withStyle(ChatFormatting.DARK_PURPLE)));
+        VoidTankBlockEntity controllerBE = getControllerBE();
+        if (controllerBE == null)
+            controllerBE = this;
+
+        ActivationMode mode = ModConfig.ACTIVATION_MODE.get();
+
+        if (mode == ActivationMode.ALWAYS_ACTIVE || controllerBE.isActive()) {
+            tooltip.add(Component.literal(" ")
+                    .append(Component.translatable("createvoidtank.goggle.voiding")
+                            .withStyle(ChatFormatting.DARK_PURPLE)));
+        } else {
+            String key = switch (mode) {
+                case REQUIRES_HEAT -> "createvoidtank.goggle.inactive.heat";
+                case REQUIRES_REDSTONE -> "createvoidtank.goggle.inactive.redstone";
+                default -> "createvoidtank.goggle.inactive";
+            };
+            tooltip.add(Component.literal(" ")
+                    .append(Component.translatable(key)
+                            .withStyle(ChatFormatting.RED)));
+        }
         return true;
     }
 

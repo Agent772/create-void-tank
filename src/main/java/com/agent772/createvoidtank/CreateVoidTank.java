@@ -2,6 +2,7 @@ package com.agent772.createvoidtank;
 
 import org.slf4j.Logger;
 
+import com.agent772.createvoidtank.config.ModConfig;
 import com.agent772.createvoidtank.registry.ModBlockEntities;
 import com.agent772.createvoidtank.registry.ModBlocks;
 import com.agent772.createvoidtank.registry.ModCreativeTabs;
@@ -26,6 +27,8 @@ public class CreateVoidTank {
         ModBlockEntities.init();
 
         modEventBus.addListener(ModBlockEntities::registerCapabilities);
+
+        modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER, ModConfig.SPEC);
 
         LOGGER.info("Create Void Tank initialized!");
     }
