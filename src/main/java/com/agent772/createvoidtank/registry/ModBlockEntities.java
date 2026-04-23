@@ -23,7 +23,12 @@ public class ModBlockEntities {
         event.registerBlockEntity(
                 Capabilities.FluidHandler.BLOCK,
                 VOID_TANK.get(),
-                (be, context) -> VoidFluidHandler.INSTANCE
+                (be, context) -> {
+                    VoidTankBlockEntity controller = be.getControllerBE();
+                    if (controller == null)
+                        return null;
+                    return VoidFluidHandler.INSTANCE;
+                }
         );
     }
 }
