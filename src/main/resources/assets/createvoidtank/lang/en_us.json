@@ -19,5 +19,12 @@
   "createvoidtank.tooltip.activation.heat_level": "Minimum heat level: %s",
   "createvoidtank.tooltip.activation.heat.smouldering": "Smouldering",
   "createvoidtank.tooltip.activation.heat.kindled": "Kindled",
-  "createvoidtank.tooltip.activation.heat.seething": "Seething"
+  "createvoidtank.tooltip.activation.heat.seething": "Seething",
+  "createvoidtank.ponder.void_tank.header": "Voiding Fluids with the Void Tank",
+  "createvoidtank.ponder.void_tank.text_1": "The Void Tank accepts fluids from any side and destroys them instantly",
+  "createvoidtank.ponder.void_tank.text_2": "It never fills up — all fluids are voided on contact",
+  "createvoidtank.ponder.void_tank.text_3": "When configured to require heat, a heat source must be placed below",
+  "createvoidtank.ponder.void_tank.text_4": "A lit Blaze Burner provides sufficient heat",
+  "createvoidtank.ponder.void_tank.text_5": "When configured to require redstone, a signal must be provided",
+  "createvoidtank.ponder.void_tank.text_6": "Any redstone signal will activate the tank"
 }
