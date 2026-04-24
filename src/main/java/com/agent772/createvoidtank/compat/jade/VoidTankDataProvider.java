@@ -19,14 +19,10 @@ public enum VoidTankDataProvider implements IServerDataProvider<BlockAccessor> {
         if (!(accessor.getBlockEntity() instanceof VoidTankBlockEntity be))
             return;
 
-        VoidTankBlockEntity ctrl = be.getControllerBE();
-        if (ctrl == null)
-            ctrl = be;
-
-        data.putBoolean("Active", ctrl.isActive());
+        data.putBoolean("Active", be.isActive());
         data.putString("Mode", ModConfig.ACTIVATION_MODE.get().name());
 
-        FluidStack lastFluid = ctrl.getLastVoidedFluid();
+        FluidStack lastFluid = be.getLastVoidedFluid();
         if (!lastFluid.isEmpty()) {
             data.put("LastFluid", lastFluid.save(accessor.getLevel().registryAccess()));
         }

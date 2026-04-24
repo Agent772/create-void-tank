@@ -2,9 +2,7 @@ package com.agent772.createvoidtank.content;
 
 import com.agent772.createvoidtank.content.voidtank.VoidTankBlockEntity;
 import com.agent772.createvoidtank.registry.ModBlockEntities;
-import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.block.IBE;
@@ -23,9 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -34,48 +29,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class VoidTankBlock extends Block implements IWrenchable, IBE<VoidTankBlockEntity> {
 
-    public static final BooleanProperty TOP = BooleanProperty.create("top");
-    public static final BooleanProperty BOTTOM = BooleanProperty.create("bottom");
-    public static final EnumProperty<FluidTankBlock.Shape> SHAPE = EnumProperty.create("shape", FluidTankBlock.Shape.class);
-
     public VoidTankBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState()
-                .setValue(TOP, true)
-                .setValue(BOTTOM, true)
-                .setValue(SHAPE, FluidTankBlock.Shape.WINDOW));
-    }
-
-    @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(TOP, BOTTOM, SHAPE);
-    }
-
-    // --- Placement / Removal ---
-
-    @Override
-    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean moved) {
-        if (oldState.getBlock() == state.getBlock())
-            return;
-        if (moved)
-            return;
-        withBlockEntityDo(world, pos, VoidTankBlockEntity::updateConnectivity);
-
-        BlockState newState = world.getBlockState(pos);
-        if (state != newState && newState.getBlock() == this) {
-            world.markAndNotifyBlock(pos, world.getChunkAt(pos), oldState, newState, UPDATE_ALL_IMMEDIATE, 512);
-        }
-    }
-
-    @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.hasBlockEntity() && (state.getBlock() != newState.getBlock() || !newState.hasBlockEntity())) {
-            var be = world.getBlockEntity(pos);
-            if (!(be instanceof VoidTankBlockEntity tankBE))
-                return;
-            world.removeBlockEntity(pos);
-            ConnectivityHandler.splitMulti(tankBE);
-        }
     }
 
     // --- Interactions ---
@@ -86,13 +41,13 @@ public class VoidTankBlock extends Block implements IWrenchable, IBE<VoidTankBlo
         if (stack.isEmpty())
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
-        VoidTankBlockEntity be = ConnectivityHandler.partAt(getBlockEntityType(), level, pos);
-        if (be == null)
-            return ItemInteractionResult.FAIL;
-
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null);
         if (fluidHandler == null)
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        VoidTankBlockEntity be = getBlockEntity(level, pos);
+        if (be == null)
+            return ItemInteractionResult.FAIL;
 
         FluidHelper.FluidExchange exchange = null;
 

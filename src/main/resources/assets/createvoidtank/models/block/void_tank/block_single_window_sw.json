@@ -1,9 +1,0 @@
-{
-  "parent": "create:block/fluid_tank/block_single_window_sw",
-  "textures": {
-    "0": "createvoidtank:block/void_tank_top",
-    "1": "createvoidtank:block/void_tank",
-    "4": "createvoidtank:block/void_tank_inner",
-    "particle": "createvoidtank:block/void_tank"
-  }
-}
