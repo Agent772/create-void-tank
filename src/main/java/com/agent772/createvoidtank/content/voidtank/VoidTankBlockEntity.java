@@ -39,6 +39,7 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     protected SmartFluidTank tankInventory;
     protected VoidFluidHandler fluidHandler;
     protected boolean cachedActive;
+    protected int cachedDetectedHeatLevel = -1;
     protected int activationCheckCooldown;
     protected FluidStack lastVoidedFluid = FluidStack.EMPTY;
     protected boolean window = true;
@@ -98,8 +99,8 @@ public class VoidTankBlockEntity extends SmartBlockEntity
         int requiredOrdinal = required.ordinal();
 
         BlockPos belowPos = worldPosition.below();
-        int detectedLevel = detectHeatLevel(belowPos);
-        return detectedLevel >= requiredOrdinal;
+        cachedDetectedHeatLevel = detectHeatLevel(belowPos);
+        return cachedDetectedHeatLevel >= requiredOrdinal;
     }
 
     private int detectHeatLevel(BlockPos pos) {
@@ -140,8 +141,14 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
         if (!level.isClientSide) {
             if (activationCheckCooldown <= 0) {
+                boolean wasActive = cachedActive;
+                int previousHeatLevel = cachedDetectedHeatLevel;
                 cachedActive = evaluateActivation();
                 activationCheckCooldown = ACTIVATION_CHECK_INTERVAL;
+                if (cachedActive != wasActive || cachedDetectedHeatLevel != previousHeatLevel) {
+                    setChanged();
+                    sendData();
+                }
             } else {
                 activationCheckCooldown--;
             }
@@ -192,8 +199,46 @@ public class VoidTankBlockEntity extends SmartBlockEntity
                     .translate(key)
                     .style(ChatFormatting.RED)
                     .forGoggles(tooltip);
+
+            if (mode == ActivationMode.REQUIRES_HEAT) {
+                MinimumHeatLevel required = ModConfig.MINIMUM_HEAT_LEVEL.get();
+                Lang.builder(CreateVoidTank.MODID)
+                        .translate("goggle.inactive.heat.required")
+                        .add(Lang.builder(CreateVoidTank.MODID)
+                                .translate(getHeatLevelTranslationKey(required.ordinal())))
+                        .style(ChatFormatting.GOLD)
+                        .forGoggles(tooltip, 1);
+
+                if (cachedDetectedHeatLevel >= 0) {
+                    Lang.builder(CreateVoidTank.MODID)
+                            .translate("goggle.inactive.heat.detected")
+                            .add(Lang.builder(CreateVoidTank.MODID)
+                                    .translate(getHeatLevelTranslationKey(cachedDetectedHeatLevel)))
+                            .style(ChatFormatting.GRAY)
+                            .forGoggles(tooltip, 1);
+                } else {
+                    Lang.builder(CreateVoidTank.MODID)
+                            .translate("goggle.inactive.heat.none")
+                            .style(ChatFormatting.GRAY)
+                            .forGoggles(tooltip, 1);
+                }
+            } else if (mode == ActivationMode.REQUIRES_REDSTONE) {
+                Lang.builder(CreateVoidTank.MODID)
+                        .translate("goggle.inactive.redstone.detail")
+                        .style(ChatFormatting.GRAY)
+                        .forGoggles(tooltip, 1);
+            }
         }
         return true;
+    }
+
+    private String getHeatLevelTranslationKey(int level) {
+        return switch (level) {
+            case 0 -> "tooltip.activation.heat.smouldering";
+            case 1 -> "tooltip.activation.heat.kindled";
+            case 2 -> "tooltip.activation.heat.seething";
+            default -> "tooltip.activation.heat.smouldering";
+        };
     }
 
     // --- Persistence ---
@@ -201,6 +246,8 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     @Override
     protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
         compound.putBoolean("Window", window);
+        compound.putBoolean("Active", cachedActive);
+        compound.putInt("DetectedHeatLevel", cachedDetectedHeatLevel);
         if (!lastVoidedFluid.isEmpty()) {
             compound.put("LastVoidedFluid", lastVoidedFluid.save(registries));
         }
@@ -213,6 +260,9 @@ public class VoidTankBlockEntity extends SmartBlockEntity
         super.read(compound, registries, clientPacket);
 
         window = !compound.contains("Window") || compound.getBoolean("Window");
+        cachedActive = !compound.contains("Active") || compound.getBoolean("Active");
+        cachedDetectedHeatLevel = compound.contains("DetectedHeatLevel")
+                ? compound.getInt("DetectedHeatLevel") : -1;
 
         if (compound.contains("LastVoidedFluid")) {
             lastVoidedFluid = FluidStack.parse(registries, compound.getCompound("LastVoidedFluid"))
