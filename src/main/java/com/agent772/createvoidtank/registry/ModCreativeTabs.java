@@ -21,7 +21,6 @@ public class ModCreativeTabs {
                             .title(Component.translatable("itemGroup.createvoidtank"))
                             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                             .icon(() -> ModBlocks.VOID_TANK.asStack())
-                            .displayItems((params, output) -> output.accept(ModBlocks.VOID_TANK.asStack()))
                             .build());
 
     public static void register(IEventBus modEventBus) {
