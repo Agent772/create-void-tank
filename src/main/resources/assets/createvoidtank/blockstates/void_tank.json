@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "shape=plain": {
       "model": "createvoidtank:block/void_tank/block_single"
+    },
+    "shape=window": {
+      "model": "createvoidtank:block/void_tank/block_single_window"
     }
   }
 }
