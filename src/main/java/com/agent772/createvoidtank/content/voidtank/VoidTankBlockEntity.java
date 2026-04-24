@@ -202,18 +202,16 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
             if (mode == ActivationMode.REQUIRES_HEAT) {
                 MinimumHeatLevel required = ModConfig.MINIMUM_HEAT_LEVEL.get();
+                String requiredHeatKey = CreateVoidTank.MODID + "." + getHeatLevelTranslationKey(required.ordinal());
                 Lang.builder(CreateVoidTank.MODID)
-                        .translate("goggle.inactive.heat.required")
-                        .add(Lang.builder(CreateVoidTank.MODID)
-                                .translate(getHeatLevelTranslationKey(required.ordinal())))
+                        .translate("goggle.inactive.heat.required", Component.translatable(requiredHeatKey))
                         .style(ChatFormatting.GOLD)
                         .forGoggles(tooltip, 1);
 
                 if (cachedDetectedHeatLevel >= 0) {
+                    String detectedHeatKey = CreateVoidTank.MODID + "." + getHeatLevelTranslationKey(cachedDetectedHeatLevel);
                     Lang.builder(CreateVoidTank.MODID)
-                            .translate("goggle.inactive.heat.detected")
-                            .add(Lang.builder(CreateVoidTank.MODID)
-                                    .translate(getHeatLevelTranslationKey(cachedDetectedHeatLevel)))
+                            .translate("goggle.inactive.heat.detected", Component.translatable(detectedHeatKey))
                             .style(ChatFormatting.GRAY)
                             .forGoggles(tooltip, 1);
                 } else {
