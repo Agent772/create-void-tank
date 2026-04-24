@@ -3,6 +3,7 @@ package com.agent772.createvoidtank.content;
 import com.agent772.createvoidtank.content.voidtank.VoidTankBlockEntity;
 import com.agent772.createvoidtank.registry.ModBlockEntities;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.block.IBE;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -29,8 +32,18 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class VoidTankBlock extends Block implements IWrenchable, IBE<VoidTankBlockEntity> {
 
+    public static final EnumProperty<FluidTankBlock.Shape> SHAPE =
+            EnumProperty.create("shape", FluidTankBlock.Shape.class,
+                    FluidTankBlock.Shape.PLAIN, FluidTankBlock.Shape.WINDOW);
+
     public VoidTankBlock(Properties properties) {
         super(properties);
+        registerDefaultState(defaultBlockState().setValue(SHAPE, FluidTankBlock.Shape.WINDOW));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(SHAPE);
     }
 
     // --- Interactions ---
@@ -80,7 +93,10 @@ public class VoidTankBlock extends Block implements IWrenchable, IBE<VoidTankBlo
 
     @Override
     public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        withBlockEntityDo(context.getLevel(), context.getClickedPos(), VoidTankBlockEntity::toggleWindows);
+        Level level = context.getLevel();
+        if (level.isClientSide)
+            return InteractionResult.SUCCESS;
+        withBlockEntityDo(level, context.getClickedPos(), VoidTankBlockEntity::toggleWindows);
         return InteractionResult.SUCCESS;
     }
 

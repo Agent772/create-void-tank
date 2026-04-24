@@ -7,7 +7,9 @@ import com.agent772.createvoidtank.config.ModConfig;
 import com.agent772.createvoidtank.config.ModConfig.ActivationMode;
 import com.agent772.createvoidtank.config.ModConfig.MinimumHeatLevel;
 import com.agent772.createvoidtank.content.VoidFluidHandler;
+import com.agent772.createvoidtank.content.VoidTankBlock;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -39,6 +41,7 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     protected boolean cachedActive;
     protected int activationCheckCooldown;
     protected FluidStack lastVoidedFluid = FluidStack.EMPTY;
+    protected boolean window = true;
 
     public VoidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -148,7 +151,17 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     // --- Window toggling ---
 
     public void toggleWindows() {
-        // No-op: single block has no window state to toggle
+        if (level == null || level.isClientSide)
+            return;
+        window = !window;
+        FluidTankBlock.Shape shape = window
+                ? FluidTankBlock.Shape.WINDOW
+                : FluidTankBlock.Shape.PLAIN;
+        level.setBlock(worldPosition,
+                getBlockState().setValue(VoidTankBlock.SHAPE, shape),
+                Block.UPDATE_ALL);
+        setChanged();
+        sendData();
     }
 
     // --- Goggle tooltip ---
@@ -187,6 +200,7 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
     @Override
     protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+        compound.putBoolean("Window", window);
         if (!lastVoidedFluid.isEmpty()) {
             compound.put("LastVoidedFluid", lastVoidedFluid.save(registries));
         }
@@ -197,6 +211,8 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     @Override
     protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(compound, registries, clientPacket);
+
+        window = !compound.contains("Window") || compound.getBoolean("Window");
 
         if (compound.contains("LastVoidedFluid")) {
             lastVoidedFluid = FluidStack.parse(registries, compound.getCompound("LastVoidedFluid"))
