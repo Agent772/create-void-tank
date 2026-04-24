@@ -12,21 +12,12 @@
 
 # Create Void Tank
 
-
-Short pitch
------------
-
 Pipe it in and forget it. The Create Void Tank is a compact mod that adds a single block — the **Void Tank** — which accepts fluid from any side and instantly destroys it. It never fills up, never backs up your pipes, and scales into multi-block structures just like Create's own fluid tanks.
 
 
-Why you'll love it
--------------------
-- **Infinite drain:** any fluid piped in is destroyed immediately — your automation never stalls on a full tank.
-- **Multi-block support:** stack up to 16 blocks tall and arrange up to 3×3 wide for a large voiding footprint.
-- **Configurable activation:** keep it always active, gate it behind a heat source, or wire it to a redstone signal.
-- **Goggle feedback:** put on Engineer's Goggles to see at a glance whether the tank is actively voiding or waiting for its activation condition.
-- **Ponder integration:** hold the block and press **W** to walk through an in-game tutorial.
-
+Disclaimer
+---------------
+This Readme and this mod where created with AI, you dont like it, dont use it.
 
 Quick Features
 --------------
