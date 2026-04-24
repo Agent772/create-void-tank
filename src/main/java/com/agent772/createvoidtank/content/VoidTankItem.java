@@ -43,7 +43,7 @@ public class VoidTankItem extends BlockItem {
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.translatable("createvoidtank.tooltip.behaviours")
                 .withStyle(ChatFormatting.GRAY));
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 2; i++) {
             tooltipComponents.add(formatWithEmphasis(
                     Component.translatable("block.createvoidtank.void_tank.tooltip.behaviour" + i).getString(),
                     ChatFormatting.GRAY, ChatFormatting.GOLD));
