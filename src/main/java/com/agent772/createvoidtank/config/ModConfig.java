@@ -15,9 +15,9 @@ public class ModConfig {
     }
 
     public enum MinimumHeatLevel {
-        SMOULDERING,
-        KINDLED,
-        SEETHING
+        PASSIVE,
+        BLAZE_BURNER,
+        SUPERHEATED
     }
 
     static {
@@ -34,11 +34,11 @@ public class ModConfig {
 
         MINIMUM_HEAT_LEVEL = builder
                 .comment("Minimum heat level required when activationMode is REQUIRES_HEAT.",
-                        "SMOULDERING = campfire, fire, lava (default)",
-                        "KINDLED = lit Blaze Burner",
-                        "SEETHING = superheated Blaze Burner",
+                        "PASSIVE = campfire, fire, lava (default)",
+                        "BLAZE_BURNER = lit Blaze Burner",
+                        "SUPERHEATED = superheated Blaze Burner",
                         "Higher heat levels satisfy lower requirements.")
-                .defineEnum("minimumHeatLevel", MinimumHeatLevel.SMOULDERING);
+                .defineEnum("minimumHeatLevel", MinimumHeatLevel.PASSIVE);
 
         builder.pop();
 

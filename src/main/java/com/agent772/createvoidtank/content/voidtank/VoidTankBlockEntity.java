@@ -110,20 +110,20 @@ public class VoidTankBlockEntity extends SmartBlockEntity
         if (block instanceof BlazeBurnerBlock) {
             BlazeBurnerBlock.HeatLevel heat = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
             return switch (heat) {
-                case SMOULDERING -> MinimumHeatLevel.SMOULDERING.ordinal();
-                case KINDLED -> MinimumHeatLevel.KINDLED.ordinal();
-                case SEETHING -> MinimumHeatLevel.SEETHING.ordinal();
+                case SMOULDERING -> MinimumHeatLevel.PASSIVE.ordinal();
+                case KINDLED -> MinimumHeatLevel.BLAZE_BURNER.ordinal();
+                case SEETHING -> MinimumHeatLevel.SUPERHEATED.ordinal();
                 default -> -1;
             };
         }
 
         if (block == Blocks.FIRE || block == Blocks.SOUL_FIRE
                 || block == Blocks.LAVA || block == Blocks.MAGMA_BLOCK) {
-            return MinimumHeatLevel.SMOULDERING.ordinal();
+            return MinimumHeatLevel.PASSIVE.ordinal();
         }
 
         if (block instanceof CampfireBlock && state.getValue(CampfireBlock.LIT)) {
-            return MinimumHeatLevel.SMOULDERING.ordinal();
+            return MinimumHeatLevel.PASSIVE.ordinal();
         }
 
         return -1;
@@ -234,10 +234,10 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
     private String getHeatLevelTranslationKey(int level) {
         return switch (level) {
-            case 0 -> "tooltip.activation.heat.smouldering";
-            case 1 -> "tooltip.activation.heat.kindled";
-            case 2 -> "tooltip.activation.heat.seething";
-            default -> "tooltip.activation.heat.smouldering";
+            case 0 -> "tooltip.activation.heat.passive";
+            case 1 -> "tooltip.activation.heat.blaze_burner";
+            case 2 -> "tooltip.activation.heat.superheated";
+            default -> "tooltip.activation.heat.passive";
         };
     }
 

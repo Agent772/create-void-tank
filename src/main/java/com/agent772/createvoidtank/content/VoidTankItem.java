@@ -70,9 +70,9 @@ public class VoidTankItem extends BlockItem {
                                         .withStyle(ChatFormatting.GOLD)));
                 MinimumHeatLevel heatLevel = ModConfig.MINIMUM_HEAT_LEVEL.get();
                 String heatKey = switch (heatLevel) {
-                    case SMOULDERING -> "createvoidtank.tooltip.activation.heat.smouldering";
-                    case KINDLED -> "createvoidtank.tooltip.activation.heat.kindled";
-                    case SEETHING -> "createvoidtank.tooltip.activation.heat.seething";
+                    case PASSIVE -> "createvoidtank.tooltip.activation.heat.passive";
+                    case BLAZE_BURNER -> "createvoidtank.tooltip.activation.heat.blaze_burner";
+                    case SUPERHEATED -> "createvoidtank.tooltip.activation.heat.superheated";
                 };
                 tooltipComponents.add(
                         Component.literal(" ")
