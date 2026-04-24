@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.agent772.createvoidtank.CreateVoidTank;
 import com.agent772.createvoidtank.config.ModConfig;
 import com.agent772.createvoidtank.config.ModConfig.ActivationMode;
 import com.agent772.createvoidtank.config.ModConfig.MinimumHeatLevel;
@@ -17,6 +18,8 @@ import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
+
+import net.createmod.catnip.lang.Lang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -54,11 +57,18 @@ public class VoidTankBlockEntity extends SmartBlockEntity
     protected VoidFluidHandler fluidHandler;
     protected boolean cachedActive;
     protected int activationCheckCooldown;
+    protected FluidStack lastVoidedFluid = FluidStack.EMPTY;
 
     public VoidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         tankInventory = new SmartFluidTank(CAPACITY_MULTIPLIER, f -> {});
-        fluidHandler = new VoidFluidHandler(() -> cachedActive);
+        fluidHandler = new VoidFluidHandler(() -> cachedActive, fluid -> {
+            if (!FluidStack.isSameFluidSameComponents(lastVoidedFluid, fluid)) {
+                lastVoidedFluid = fluid.copyWithAmount(1);
+                setChanged();
+                sendData();
+            }
+        });
         cachedActive = true;
         activationCheckCooldown = 0;
         updateConnectivity = false;
@@ -87,6 +97,13 @@ public class VoidTankBlockEntity extends SmartBlockEntity
 
     public boolean isActive() {
         return cachedActive;
+    }
+
+    public FluidStack getLastVoidedFluid() {
+        VoidTankBlockEntity ctrl = getControllerBE();
+        if (ctrl == null)
+            ctrl = this;
+        return ctrl.lastVoidedFluid;
     }
 
     private boolean evaluateActivation() {
@@ -425,18 +442,28 @@ public class VoidTankBlockEntity extends SmartBlockEntity
         ActivationMode mode = ModConfig.ACTIVATION_MODE.get();
 
         if (mode == ActivationMode.ALWAYS_ACTIVE || controllerBE.isActive()) {
-            tooltip.add(Component.literal(" ")
-                    .append(Component.translatable("createvoidtank.goggle.voiding")
-                            .withStyle(ChatFormatting.DARK_PURPLE)));
+            Lang.builder(CreateVoidTank.MODID)
+                    .translate("goggle.voiding")
+                    .style(ChatFormatting.DARK_PURPLE)
+                    .forGoggles(tooltip);
+            FluidStack lastFluid = controllerBE.lastVoidedFluid;
+            if (!lastFluid.isEmpty()) {
+                Lang.builder(CreateVoidTank.MODID)
+                        .translate("goggle.voiding_fluid")
+                        .add(Lang.builder(CreateVoidTank.MODID).add(lastFluid.getHoverName().copy()))
+                        .style(ChatFormatting.GRAY)
+                        .forGoggles(tooltip, 1);
+            }
         } else {
             String key = switch (mode) {
-                case REQUIRES_HEAT -> "createvoidtank.goggle.inactive.heat";
-                case REQUIRES_REDSTONE -> "createvoidtank.goggle.inactive.redstone";
-                default -> "createvoidtank.goggle.inactive";
+                case REQUIRES_HEAT -> "goggle.inactive.heat";
+                case REQUIRES_REDSTONE -> "goggle.inactive.redstone";
+                default -> "goggle.inactive";
             };
-            tooltip.add(Component.literal(" ")
-                    .append(Component.translatable(key)
-                            .withStyle(ChatFormatting.RED)));
+            Lang.builder(CreateVoidTank.MODID)
+                    .translate(key)
+                    .style(ChatFormatting.RED)
+                    .forGoggles(tooltip);
         }
         return true;
     }
@@ -458,6 +485,9 @@ public class VoidTankBlockEntity extends SmartBlockEntity
             compound.putBoolean("Window", window);
             compound.putInt("Size", width);
             compound.putInt("Height", height);
+            if (!lastVoidedFluid.isEmpty()) {
+                compound.put("LastVoidedFluid", lastVoidedFluid.save(registries));
+            }
         }
 
         super.write(compound, registries, clientPacket);
@@ -485,6 +515,12 @@ public class VoidTankBlockEntity extends SmartBlockEntity
             window = compound.getBoolean("Window");
             width = compound.getInt("Size");
             height = compound.getInt("Height");
+            if (compound.contains("LastVoidedFluid")) {
+                lastVoidedFluid = FluidStack.parse(registries, compound.getCompound("LastVoidedFluid"))
+                        .orElse(FluidStack.EMPTY);
+            } else {
+                lastVoidedFluid = FluidStack.EMPTY;
+            }
         }
 
         if (!clientPacket)
