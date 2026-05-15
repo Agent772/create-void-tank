@@ -2,6 +2,10 @@
 <!-- Version / platform badges -->
 
 <p align="center">
+	<img src="logo_neu.PNG" alt="Create Void Tank Logo" />
+</p>
+
+<p align="center">
 	<img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?logo=minecraft" alt="Minecraft" />
 	<img src="https://img.shields.io/badge/Create-6.0.10-blue" alt="Create" />
 	<img src="https://img.shields.io/badge/NeoForged-21.1.219-663399" alt="NeoForged" />
