@@ -2,7 +2,7 @@
 <!-- Version / platform badges -->
 
 <p align="center">
-	<img src="logo_neu.PNG" alt="Create Void Tank Logo" />
+	<img src="logo_neu.PNG" alt="Create Void Tank Logo" width="50%" />
 </p>
 
 <p align="center">
