@@ -2,8 +2,11 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.agent772.createvoidtank.mixins",
+  "plugin": "com.agent772.createvoidtank.mixins.CreateVoidTankMixinPlugin",
   "refmap": "mixins.createvoidtank.refmap.json",
-  "mixins": [],
+  "mixins": [
+    "compat.drilldrain.DrillMovementBehaviourMixin"
+  ],
   "client": [],
   "server": []
 }

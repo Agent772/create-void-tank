@@ -27,6 +27,7 @@ Quick Features
 --------------
 - New block: **Void Tank** — accepts fluids from any side and voids them instantly
 - Multi-block connectivity (up to 3×3 × 16 tall), mirrors Create's fluid tank behaviour
+- Drill Drain compat: a contraption with a Void Tank on board voids the fluid its Drill Drains collect (other fluid sources are not affected)
 - Toggle glass windows by right-clicking with a Wrench
 - Three activation modes configurable per-server:
   - `ALWAYS_ACTIVE` — voids continuously (default)
