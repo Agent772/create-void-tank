@@ -1,4 +1,4 @@
-## Unreleased
+## Version 1.2.0 -beta
 
 ### Added
 - Drill Drain compat: a moving contraption with a Void Tank on board voids the fluid its Drill Drains collect. That fluid is voided right away and never goes into fluid tanks on the contraption. The Void Tank must have been active when the contraption was assembled. Fluid from other sources is not affected. Without Drill Drain installed nothing changes.
