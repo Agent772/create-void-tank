@@ -1,5 +1,6 @@
 package com.agent772.createvoidtank.compat.drilldrain;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -22,7 +23,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
  */
 public final class DrillDrainVoiding {
 
-    private static final Map<Contraption, Boolean> HAS_ACTIVE_VOID_TANK = new WeakHashMap<>();
+    // Drill Drain only collects fluid on the server thread today; synchronized in case that ever changes.
+    private static final Map<Contraption, Boolean> HAS_ACTIVE_VOID_TANK =
+            Collections.synchronizedMap(new WeakHashMap<>());
 
     private DrillDrainVoiding() {
     }
